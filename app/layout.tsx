@@ -11,6 +11,9 @@ const fontSans = FontSans({
 export const metadata: Metadata = {
   title: "Uni-Connect Ethiopia",
   description: "The only social media for educational institutions in Ethiopia.",
+  icons: {
+    icon: ['./favicon.ico'],
+  },
 };
 
 export default function RootLayout({
