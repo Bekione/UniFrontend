@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { StrictMode } from "react";
 import "./globals.css";
 import { Inter as FontSans } from "next/font/google";
 
@@ -22,15 +23,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <StrictMode>
+      <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          "min-h-screen bg-background font-sans antialiased",
+          "min-h-screen bg-background font-sans antialiased dark",
           fontSans.variable
         )}
       >
         {children}
       </body>
     </html>
+  </StrictMode>
+
   );
 }
