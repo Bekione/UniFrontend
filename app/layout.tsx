@@ -5,6 +5,7 @@ import { Inter as FontSans } from "next/font/google";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "@/lib/theme-provider";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -29,13 +30,19 @@ export default function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <body
           className={cn(
-            "min-h-screen bg-background font-sans antialiased dark",
+            "min-h-screen bg-background font-sans antialiased",
             fontSans.variable
           )}
         >
-          <Toaster richColors />
-          {/* <Toaster richColors theme="dark" /> */}
-          <AuthProvider>{children}</AuthProvider>
+          <Toaster richColors theme="dark" />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <AuthProvider>{children}</AuthProvider>
+          </ThemeProvider>
         </body>
       </html>
     </StrictMode>
