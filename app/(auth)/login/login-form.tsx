@@ -47,18 +47,15 @@ export default function LoginForm() {
   const router = useRouter();
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [serverError, setServerError] = useState<string | null>(null);
   const { pending } = useFormStatus();
   const { setToken, setUser, setIsLoggedIn } = useAuthContext();
 
   const handleLogin = async (data: z.infer<typeof LoginSchema>) => {
     setLoading(true);
-    setServerError(null);
 
-    console.log("Login form values : ", form.getValues());
     try {
       const response = await axios.post(
-        `${process.env.BASE_URL}/login/`,
+        `${process.env.NEXT_PUBLIC_BASE_API}/login/`,
         data,
         {
           headers: {

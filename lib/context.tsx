@@ -1,16 +1,14 @@
 "use client";
 
-import axios from "axios";
-import { decodeJwt } from "jose";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
+import { decodeJwt } from "jose";
 
 interface AuthContextType {
   token: string;
   setToken: (token: string) => void;
   user: { id: number } | null;
   setUser: (user: { id: number } | null) => void;
-  getUser: () => void;
   logout: () => void;
   isLoggedIn: boolean;
   setIsLoggedIn: (isLoggedIn: boolean) => void;
@@ -21,58 +19,58 @@ export const AuthContext = createContext<AuthContextType>({
   setToken: () => {},
   user: null,
   setUser: () => {},
-  getUser: () => {},
   logout: () => {},
   isLoggedIn: false,
   setIsLoggedIn: () => {},
 });
 
-export default function AuthProvider({ children }: { children: React.ReactNode }) {
+export default function AuthProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const router = useRouter();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<{ id: number } | null>(null);
-  const [token, setToken] = useState<string>("");
+  const [token, setToken] = useState<string>(() => {
+    return localStorage.getItem("token") || "";
+  });
 
-  const logout = () => {
+  const logout = async () => {
     setToken("");
+    localStorage.removeItem("token");
     setUser(null);
     setIsLoggedIn(false);
     router.replace("/login");
   };
 
-  const getUser = async () => {
-    if (!token) {
-      logout();
-      return;
-    }
-
+  const decodeToken = (token: string) => {
     try {
-      const decodedToken: any = decodeJwt(token);
-      const userId = decodedToken.user_id;
+      const decoded = decodeJwt(token);
 
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (res.status === 200) {
-        setUser(res.data);
-        setIsLoggedIn(true);
-      } else {
-        logout();
-      }
+      console.log("Decoded 1st : ", decoded)
+      return decoded;
     } catch (error) {
-      logout();
+      console.error("Invalid token:", error);
+      return null;
     }
   };
 
   useEffect(() => {
     if (token) {
-      getUser();
+      localStorage.setItem("token", token);
+
+      const decoded = decodeToken(token);
+      console.log("Decoded 2nd : ", decoded)
+      if (decoded) {
+        setUser({ id: typeof decoded.user_id === 'number'? decoded.user_id : 0 });
+        setIsLoggedIn(true);
+      } else {
+        logout();
+      }
     }
-  }, [token,]);
+  }, [token]);
 
   return (
     <AuthContext.Provider
@@ -82,7 +80,6 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
         logout,
         user,
         setUser,
-        getUser,
         isLoggedIn,
         setIsLoggedIn,
       }}
